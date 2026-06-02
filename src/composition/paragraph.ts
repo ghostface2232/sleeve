@@ -14,6 +14,7 @@ export function buildParagraph(
   width: number,
 ): SkParagraph {
   const family = families[style.role];
+  const content = style.transform === 'upper' ? text.toUpperCase() : text;
   const para = Skia.ParagraphBuilder.Make(
     {
       textAlign: alignToSkia(style.align),
@@ -27,8 +28,9 @@ export function buildParagraph(
       fontFamilies: [family],
       fontSize: style.size,
       fontStyle: { weight: style.weight },
+      letterSpacing: style.letterSpacing,
     })
-    .addText(text.length > 0 ? text : ' ')
+    .addText(content.length > 0 ? content : ' ')
     .build();
   para.layout(width);
   return para;

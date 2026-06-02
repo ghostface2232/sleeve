@@ -9,12 +9,16 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "postinstall": "node ./scripts/setup-skia-web.js",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "validate:shaders": "node ./scripts/validate-shaders.mjs"
   },
   "dependencies": {
+    "@expo-google-fonts/anton": "^0.4.2",
     "@expo-google-fonts/inter": "^0.4.1",
     "@expo-google-fonts/jetbrains-mono": "^0.4.1",
     "@expo-google-fonts/playfair-display": "^0.4.1",
+    "@expo-google-fonts/press-start-2p": "^0.4.1",
+    "@expo-google-fonts/vt323": "^0.4.1",
     "@react-native-async-storage/async-storage": "~2.2.0",
     "@shopify/react-native-skia": "2.6.2",
     "canvaskit-wasm": "^0.41.0",
@@ -40,6 +44,8 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~56.0.4",
     "typescript": "~6.0.3"
   }
 }

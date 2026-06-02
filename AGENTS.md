@@ -15,6 +15,14 @@ A stateless app that fetches metadata and cover art from a music link, then comp
 - Global post-processing effects must keep an option to mask out the cover region, so the cover can be excluded when needed.
 - Layer geometry is derived from a single `baseWidth`, so one composition function drives both the on-screen preview and the 1080-wide export.
 
+## Aesthetic preset engine
+- A preset is one pure-data object (`src/composition/presets/library.ts`) = a combination of five axes: layout template, typography, frame/outline, background, post-processing effects. Adding an aesthetic is one object + a `PRESETS` entry; no renderer changes.
+- Spatial values in a preset are *ratios* (relative to canvas width, except cover corner radius which is relative to cover width). `resolveComposition()` turns a preset + format + baseWidth into a pixel-resolved `ResolvedComposition` the renderer reads.
+- A picked preset stays editable: `PresetOverrides` is merged per axis (`mergePreset`); `background` is a tagged union and is swapped whole.
+- Post effects are independent SkSL runtime shaders (`src/composition/shaders/effects.ts`): grain, glitch, pixelate, halftone, chromatic. Each takes `intensity` 0..1. They are applied by snapshotting the scene to an `SkImage` (`drawAsImage`) and sampling it through nested runtime-effect shaders (`<Shader>` with an `<ImageShader>` child) — NOT via `ImageFilter.MakeRuntimeShader`, which is unimplemented on React Native Web. `drawAsImage` is async, so the un-effected scene renders until the snapshot resolves. `EffectsSpec.coverPolicy` ('include' default, or 'exclude') controls whether the locked cover is repainted clean over the effected scene.
+- The "cover-colors" background extracts representative colors from the decoded cover (`src/composition/color/extract.ts`, offscreen downscale + histogram quantize) for a solid or gradient fill, with a static `fallback` until the image decodes.
+- Validate shader edits with `npm run validate:shaders` (compiles every SkSL string through CanvasKit).
+
 ## Output specs
 - Default: 1080x1920 (IG Story, 9:16)
 - Secondary: 1080x1080 (IG feed/Twitter, 1:1)

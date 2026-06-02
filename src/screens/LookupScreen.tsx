@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import CompositionHost from '@/composition/CompositionHost';
+import { DEFAULT_PRESET_ID, PRESET_LIST } from '@/composition/presets';
 import type { CanvasFormat } from '@/composition/types';
 import type { ITunesResult } from '@/data/itunes';
 import type { LookupError, Track } from '@/data/types';
@@ -121,12 +122,14 @@ function TrackPreview({ track, onReset }: { track: Track; onReset: () => void })
   const { width } = useWindowDimensions();
   const previewWidth = Math.min(width - 32, 360);
   const [format, setFormat] = useState<CanvasFormat>('story');
+  const [presetId, setPresetId] = useState<string>(DEFAULT_PRESET_ID);
 
   return (
     <View style={{ gap: 12 }}>
       <FormatToggle value={format} onChange={setFormat} />
+      <PresetPicker value={presetId} onChange={setPresetId} />
       <View style={{ alignItems: 'center' }}>
-        <CompositionHost track={track} format={format} displayWidth={previewWidth} />
+        <CompositionHost track={track} format={format} displayWidth={previewWidth} presetId={presetId} />
       </View>
       <View style={{ paddingHorizontal: 4, gap: 4 }}>
         <Text style={{ color: TEXT, fontSize: 16, fontWeight: '600' }} numberOfLines={2}>
@@ -186,6 +189,34 @@ function FormatToggle({
         );
       })}
     </View>
+  );
+}
+
+function PresetPicker({ value, onChange }: { value: string; onChange: (id: string) => void }) {
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={{ gap: 8, paddingVertical: 2 }}
+    >
+      {PRESET_LIST.map((preset) => {
+        const active = preset.id === value;
+        return (
+          <Pressable
+            key={preset.id}
+            onPress={() => onChange(preset.id)}
+            style={{
+              paddingVertical: 8,
+              paddingHorizontal: 14,
+              borderRadius: 999,
+              backgroundColor: active ? ACCENT : SUBTLE,
+            }}
+          >
+            <Text style={{ color: TEXT, fontWeight: '600', fontSize: 13 }}>{preset.name}</Text>
+          </Pressable>
+        );
+      })}
+    </ScrollView>
   );
 }
 
