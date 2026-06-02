@@ -6,10 +6,13 @@ import {
   ScrollView,
   Text,
   TextInput,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import CompositionHost from '@/composition/CompositionHost';
+import type { CanvasFormat } from '@/composition/types';
 import type { ITunesResult } from '@/data/itunes';
 import type { LookupError, Track } from '@/data/types';
 import { type TrackStatus, useTrack } from '@/state/track-store';
@@ -115,31 +118,73 @@ function StatusBlock({
 }
 
 function TrackPreview({ track, onReset }: { track: Track; onReset: () => void }) {
+  const { width } = useWindowDimensions();
+  const previewWidth = Math.min(width - 32, 360);
+  const [format, setFormat] = useState<CanvasFormat>('story');
+
   return (
-    <View style={{ backgroundColor: CARD, borderRadius: 16, overflow: 'hidden' }}>
-      <Image
-        source={{ uri: track.coverUrl }}
-        style={{ width: '100%', aspectRatio: 1, backgroundColor: SUBTLE }}
-        resizeMode="cover"
-      />
-      <View style={{ padding: 16, gap: 4 }}>
-        <Text style={{ color: TEXT, fontSize: 18, fontWeight: '600' }}>{track.title}</Text>
-        <Text style={{ color: DIM, fontSize: 14 }}>{track.artist}</Text>
-        <Text style={{ color: DIM, fontSize: 13 }}>
+    <View style={{ gap: 12 }}>
+      <FormatToggle value={format} onChange={setFormat} />
+      <View style={{ alignItems: 'center' }}>
+        <CompositionHost track={track} format={format} displayWidth={previewWidth} />
+      </View>
+      <View style={{ paddingHorizontal: 4, gap: 4 }}>
+        <Text style={{ color: TEXT, fontSize: 16, fontWeight: '600' }} numberOfLines={2}>
+          {track.title}
+        </Text>
+        <Text style={{ color: DIM, fontSize: 13 }} numberOfLines={1}>
+          {track.artist}
+        </Text>
+        <Text style={{ color: DIM, fontSize: 12 }} numberOfLines={1}>
           {track.album}
           {track.releaseYear ? `  ·  ${track.releaseYear}` : ''}
         </Text>
         <Text
-          style={{ color: '#4A4A55', fontSize: 11, marginTop: 8 }}
+          style={{ color: '#4A4A55', fontSize: 11, marginTop: 6 }}
           numberOfLines={1}
           ellipsizeMode="middle"
         >
           {track.sourceUrl}
         </Text>
-        <Pressable onPress={onReset} style={{ marginTop: 12, alignSelf: 'flex-start' }}>
-          <Text style={{ color: ACCENT, fontSize: 14 }}>다른 링크 가져오기</Text>
-        </Pressable>
       </View>
+      <Pressable onPress={onReset} style={{ alignSelf: 'flex-start' }}>
+        <Text style={{ color: ACCENT, fontSize: 14 }}>다른 링크 가져오기</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+function FormatToggle({
+  value,
+  onChange,
+}: {
+  value: CanvasFormat;
+  onChange: (next: CanvasFormat) => void;
+}) {
+  const options: { key: CanvasFormat; label: string }[] = [
+    { key: 'story', label: 'Story 9:16' },
+    { key: 'square', label: 'Square 1:1' },
+  ];
+  return (
+    <View style={{ flexDirection: 'row', gap: 8 }}>
+      {options.map((opt) => {
+        const active = opt.key === value;
+        return (
+          <Pressable
+            key={opt.key}
+            onPress={() => onChange(opt.key)}
+            style={{
+              flex: 1,
+              paddingVertical: 10,
+              borderRadius: 10,
+              backgroundColor: active ? ACCENT : SUBTLE,
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ color: TEXT, fontWeight: '600', fontSize: 13 }}>{opt.label}</Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
