@@ -8,7 +8,12 @@ import {
 } from 'react';
 
 import type { ITunesResult } from '@/data/itunes';
-import { lookupTrack, searchCandidates, trackFromCandidate } from '@/data/track-service';
+import {
+  cacheManualPick,
+  lookupTrack,
+  searchCandidates,
+  trackFromCandidate,
+} from '@/data/track-service';
 import type { LookupError, Track } from '@/data/types';
 
 export type TrackStatus =
@@ -64,7 +69,9 @@ export function TrackProvider({ children }: { children: ReactNode }) {
     (candidate: ITunesResult) => {
       const sourceUrl = sourceUrlFromStatus(status);
       const track = trackFromCandidate(candidate, sourceUrl);
-      if (track) setStatus({ kind: 'success', track });
+      if (!track) return;
+      void cacheManualPick(sourceUrl, track);
+      setStatus({ kind: 'success', track });
     },
     [status],
   );
