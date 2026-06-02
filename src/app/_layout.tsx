@@ -3,6 +3,9 @@ import '@/global.css';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import { TrackProvider } from '@/state/track-store';
 
 export default function RootLayout() {
   // Follow system theme; fall back to dark when the platform doesn't report one.
@@ -10,9 +13,13 @@ export default function RootLayout() {
   const isDark = (system ?? 'dark') === 'dark';
 
   return (
-    <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }} />
-      <StatusBar style={isDark ? 'light' : 'dark'} />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+        <TrackProvider>
+          <Stack screenOptions={{ headerShown: false }} />
+        </TrackProvider>
+        <StatusBar style={isDark ? 'light' : 'dark'} />
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

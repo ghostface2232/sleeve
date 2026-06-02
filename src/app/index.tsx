@@ -1,2 +1,1 @@
-// Native entry: Skia is linked natively, import the canvas screen directly.
-export { default } from '@/screens/HomeCanvas';
+export { default } from '@/screens/LookupScreen';
